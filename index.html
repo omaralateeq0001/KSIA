@@ -469,6 +469,7 @@ img{max-width:100%}
 .authlogo{color:var(--accent)}
 .authlogo .logo{height:56px;width:auto;color:var(--accent)}
 #authform{display:flex;flex-direction:column;gap:8px}
+.authbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}.authlink{all:unset;cursor:pointer;font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;align-self:flex-start;margin-top:2px}.authlink:hover{color:var(--accent)}
 #authform label{font-size:13px;color:var(--muted)}
 .authmsg{min-height:1.4em;color:var(--accent)!important;font-weight:500}
 
@@ -695,14 +696,28 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   window.claude={use:async n=>{await ready;return n==="db"?db:n==="user"?user:null}};
   function gate(html){const g=document.getElementById("authgate");g.innerHTML=html;g.hidden=false;return g}
   function showLogin(msg){
-    const g=gate(`<div class="authcard"><div class="authlogo"></div><h2>لوحة مشروع مطار الملك سلمان الدولي</h2><p>سجّل الدخول ببريدك وسيصلك رابط الدخول عليه.</p>
-      <form id="authform"><label for="authemail">البريد الإلكتروني</label><input id="authemail" type="email" dir="ltr" required placeholder="name@nuss.sa" autocomplete="email"><button class="btn primary" type="submit">إرسال رابط الدخول</button></form>
+    const g=gate(`<div class="authcard"><div class="authlogo"></div><h2>لوحة مشروع مطار الملك سلمان الدولي</h2><p>ادخل ببريدك وكلمة المرور. أول مرة؟ اكتب بريدك واختر كلمة مرور ثم اضغط «إنشاء حساب».</p>
+      <form id="authform"><label for="authemail">البريد الإلكتروني</label><input id="authemail" type="email" dir="ltr" required placeholder="name@nuss.sa" autocomplete="email">
+      <label for="authpass">كلمة المرور</label><input id="authpass" type="password" dir="ltr" minlength="6" placeholder="6 أحرف على الأقل" autocomplete="current-password">
+      <div class="authbtns"><button class="btn primary" type="submit" id="authin">دخول</button><button class="btn" type="button" id="authup">إنشاء حساب</button></div>
+      <button class="authlink" type="button" id="authotp">بدلًا من ذلك: أرسل لي رابط دخول على البريد</button></form>
       <p class="authmsg" id="authmsg">${msg||""}</p><button class="btn ghost" type="button" id="authback">متابعة الاطلاع بدون تسجيل دخول</button></div>`);
     g.querySelector("#authback").onclick=()=>{g.hidden=true;if(!me)startGuest()};
     const lg=document.querySelector("header .logo");if(lg)g.querySelector(".authlogo").append(lg.cloneNode(true));
-    g.querySelector("#authform").addEventListener("submit",async e=>{e.preventDefault();const em=g.querySelector("#authemail").value.trim();const m=g.querySelector("#authmsg");const b=e.target.querySelector("button");b.disabled=true;m.textContent="جارٍ الإرسال…";
-      const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname}});
-      b.disabled=false;m.textContent=error?("تعذّر الإرسال: "+(error.message||"")+""):"تم إرسال رابط الدخول إلى بريدك. افتح البريد واضغط الرابط من نفس الجهاز.";});
+    const m=g.querySelector("#authmsg"),em=()=>g.querySelector("#authemail").value.trim().toLowerCase(),pw=()=>g.querySelector("#authpass").value;
+    const busy=(b,on)=>{g.querySelectorAll("#authform button").forEach(x=>x.disabled=on)};
+    const ar=t=>/invalid login/i.test(t)?"البريد أو كلمة المرور غير صحيحة. إذا كانت أول مرة لك اضغط «إنشاء حساب».":/already registered|already exists/i.test(t)?"هذا البريد لديه حساب. اكتب كلمة المرور واضغط «دخول».":/rate|limit/i.test(t)?"تجاوزت حد إرسال الرسائل المؤقت. ادخل بكلمة المرور بدلًا من الرابط.":/confirm/i.test(t)?"حسابك يحتاج تأكيد البريد. افتح رسالة التأكيد في بريدك ثم ادخل.":t;
+    g.querySelector("#authform").addEventListener("submit",async e=>{e.preventDefault();if(!em())return;if(pw().length<6){m.textContent="اكتب كلمة المرور (6 أحرف على الأقل).";g.querySelector("#authpass").focus();return}
+      busy(1,true);m.textContent="جارٍ الدخول…";const {error}=await sb.auth.signInWithPassword({email:em(),password:pw()});
+      if(error){busy(1,false);m.textContent=ar(error.message||"");return}location.reload()});
+    g.querySelector("#authup").onclick=async()=>{if(!g.querySelector("#authemail").reportValidity())return;if(pw().length<6){m.textContent="اختر كلمة مرور من 6 أحرف على الأقل.";g.querySelector("#authpass").focus();return}
+      busy(1,true);m.textContent="جارٍ إنشاء الحساب…";const {data,error}=await sb.auth.signUp({email:em(),password:pw(),options:{emailRedirectTo:location.origin+location.pathname}});
+      busy(1,false);if(error){m.textContent=ar(error.message||"");return}
+      if(data&&data.session){location.reload();return}
+      m.textContent="أُنشئ الحساب. افتح رسالة التأكيد في بريدك، ثم ارجع وادخل بكلمة المرور."};
+    g.querySelector("#authotp").onclick=async()=>{if(!g.querySelector("#authemail").reportValidity())return;busy(1,true);m.textContent="جارٍ الإرسال…";
+      const {error}=await sb.auth.signInWithOtp({email:em(),options:{emailRedirectTo:location.origin+location.pathname}});
+      busy(1,false);m.textContent=error?ar("تعذّر الإرسال: "+(error.message||"")):"تم إرسال رابط الدخول إلى بريدك. افتح البريد واضغط الرابط من نفس المتصفح."};
   }
   function showNoAccess(email){
     gate(`<div class="authcard"><h2>لا تملك صلاحية على هذه اللوحة بعد</h2><p>دخلت ببريد <b dir="ltr">${email.replace(/[<&>]/g,"")}</b>، لكن لم تُضف له صلاحية. اطلب من مدير اللوحة إضافة بريدك من قسم الصلاحيات، ثم أعد فتح الصفحة.</p><button class="btn" id="authout" type="button">تسجيل الخروج</button></div>`);
@@ -1496,7 +1511,7 @@ function paintAccess(){
     const inv=h("div",{class:"invbox"},h("h3",{text:"دعوة شخص"}),h("div",{class:"invrow"},h("div",{class:"field"},h("label",{for:"inv-email",text:"البريد الإلكتروني"}),em),h("div",{class:"field"},h("label",{for:"inv-role",text:"الصلاحية"}),rl),send));
     if(S.invites.length)inv.append(h("div",{class:"invlist"},h("div",{class:"invlbl",text:`دعوات بانتظار الدخول (${S.invites.length})`}),S.invites.map(i=>h("div",{class:"invitem"},h("span",{class:"invmail",dir:"ltr",text:i.email}),h("span",{class:"invcode",title:"رمز الدعوة"},h("span",{class:"val",text:i.id}),h("button",{class:"copybtn",type:"button",onclick:e=>copyText(i.id,e.currentTarget),text:"نسخ الرمز"})),
       h("select",{id:"invr-"+i.id,"aria-label":"الصلاحية",onchange:e=>{const r=e.target.value;run(()=>S.db.doc("invites/"+i.id).update({role:r}),"عُدّلت صلاحية الدعوة","الصلاحيات",`غيّر صلاحية دعوة ${i.email} إلى «${ROLES[r].t}»`)}},Object.entries(ROLES).map(([k,r])=>h("option",{value:k,selected:i.role===k,text:r.t}))),
-      h("small",{text:i.mailedAt?"أُرسلت "+rel(i.mailedAt):rel(i.at)}),h("button",{class:"btn ghost",type:"button",style:"padding:3px 10px;font-size:12.5px",onclick:e=>sendInviteMail(i.email,e.currentTarget,i.id),text:"إعادة إرسال"}),armBtn("إلغاء",()=>run(()=>S.db.doc("invites/"+i.id).delete(),"أُلغيت الدعوة","الصلاحيات",`ألغى دعوة ${i.email}`))))));
+      h("small",{text:i.mailedAt?"أُرسلت "+rel(i.mailedAt):rel(i.at)}),h("button",{class:"btn ghost",type:"button",style:"padding:3px 10px;font-size:12.5px",onclick:e=>sendInviteMail(i.email,e.currentTarget,i.id),text:"إعادة إرسال"}),h("button",{class:"btn ghost",type:"button",style:"padding:3px 10px;font-size:12.5px",onclick:e=>copyText(inviteText(i.email),e.currentTarget),text:"نسخ رسالة الدعوة"}),armBtn("إلغاء",()=>run(()=>S.db.doc("invites/"+i.id).delete(),"أُلغيت الدعوة","الصلاحيات",`ألغى دعوة ${i.email}`))))));
     kids.push(inv);
     kids.push(h("div",{class:"field",style:"margin-bottom:14px"},h("label",{for:"addMember",text:"أو أضف عضوًا من مؤسستك بالبحث"}),peoplePicker("addMember","ابحث بالاسم أو البريد…",async p=>{if(S.members.some(m=>m.id===p.id)||(S.isOwner&&p.id===S.me.id)){toast("هذا الشخص مضاف بالفعل");return}
     await run(()=>S.db.doc("members/"+p.id).set({role:"editor",addedAt:new Date().toISOString(),addedBy:S.me.id}),"أُضيف العضو بدور محرر","الصلاحيات",`أضاف ${p.name||"عضوًا"} بدور «محرر»`)})))}
@@ -1513,11 +1528,13 @@ async function claimCode(code,btn){
     logIt("الصلاحيات",`قبل دعوة ${inv.email||""} وانضم بصلاحية «${ROLES[inv.role]?.t||inv.role}»`);toast("تم! صلاحيتك الآن: "+(ROLES[inv.role]?.t||""))
   }catch(e){if(e?.code==="invalid_argument"){S.dataWrite=false;render();toast("حسابك يملك صلاحية الاطلاع فقط. اطلب من مدير اللوحة دعوتك بمستوى «محرر» من زر المشاركة");}else toast(errText(e))}btn.disabled=false;
 }
+function inviteText(email){return `تمت دعوتك إلى لوحة «مشروع مطار الملك سلمان الدولي».\n1) افتح الرابط: ${location.origin+location.pathname}\n2) اضغط «تسجيل الدخول»\n3) اكتب بريدك ${email} واختر كلمة مرور، ثم اضغط «إنشاء حساب».\nستتفعّل صلاحيتك تلقائيًا.`}
 async function sendInviteMail(email,btn,invId){
   const sb=window.__sb;if(!sb)return;if(btn)btn.disabled=true;
   const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
   if(btn)btn.disabled=false;
-  if(error){toast(/rate|limit|seconds/i.test(error.message||"")?"تجاوزت حد الإرسال المؤقت. انتظر قليلًا ثم اضغط «إعادة إرسال».":"تعذّر إرسال الدعوة: "+(error.message||""));return}
+  if(error){const msg=inviteText(email);try{await navigator.clipboard.writeText(msg)}catch(e){}
+    toast(/rate|limit|seconds/i.test(error.message||"")?"تجاوزت حد إرسال البريد المؤقت، فنُسخت رسالة الدعوة. أرسلها له على الواتساب أو البريد وسيدخل بإنشاء حساب.":"تعذّر إرسال البريد، فنُسخت رسالة الدعوة. أرسلها له بنفسك.");return}
   toast("أُرسلت الدعوة إلى "+email+". سيصله رابط الدخول على بريده.");
   const inv=invId?S.invites.find(x=>x.id===invId):S.invites.find(x=>(x.email||"").toLowerCase()===email.toLowerCase());
   if(inv)try{await S.db.doc("invites/"+inv.id).update({mailedAt:new Date().toISOString()})}catch(e){}
