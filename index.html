@@ -416,7 +416,7 @@ tr.latetr td{background:color-mix(in srgb,var(--danger) 6%,transparent)}
 .rptact{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:14px 18px}
 .rptact ul{margin:6px 0 0;padding-inline-start:18px;line-height:1.8}
 @media print{
-  body.printing-report .top>div:last-child,body.printing-report .summary,body.printing-report .tabs,body.printing-report #claimTop,body.printing-report .noprint,body.printing-report .sechead,body.printing-report .toast,body.printing-report #drawerRoot{display:none!important}
+  body.printing-report .top>div:last-of-type,body.printing-report .summary,body.printing-report .tabs,body.printing-report #claimTop,body.printing-report .noprint,body.printing-report .sechead,body.printing-report .toast,body.printing-report #drawerRoot{display:none!important}
   body.printing-report section[role=tabpanel]:not(#v-reports){display:none!important}
   body.printing-report{background:#fff}
   body.printing-report .rptsec{break-inside:avoid}
@@ -557,7 +557,7 @@ body.anim .card:nth-child(9),body.anim .tm:nth-child(9),body.anim .dsum>div:nth-
 body.anim .card:nth-child(10),body.anim .tm:nth-child(10),body.anim .dsum>div:nth-child(10),body.anim .summary .stat:nth-child(10),body.anim .rptsec:nth-of-type(10){animation-delay:495ms!important}
 body.anim .card:nth-child(11),body.anim .tm:nth-child(11),body.anim .dsum>div:nth-child(11),body.anim .summary .stat:nth-child(11),body.anim .rptsec:nth-of-type(11){animation-delay:550ms!important}
 body.anim .card:nth-child(12),body.anim .tm:nth-child(12),body.anim .dsum>div:nth-child(12),body.anim .summary .stat:nth-child(12),body.anim .rptsec:nth-of-type(12){animation-delay:605ms!important}
-.top>div:last-child{position:relative;z-index:1}
+.top>div:last-of-type{position:relative;z-index:1}
 .top #editProject,.top .me{background:color-mix(in srgb,var(--surface) 86%,transparent)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid color-mix(in srgb,#fff 50%,transparent)!important;box-shadow:var(--soft);color:var(--ink)}
 .tm-id{padding-top:30px}
 /* home: section cards */
@@ -698,7 +698,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     document.getElementById("authout").onclick=async()=>{await sb.auth.signOut();location.reload()};
   }
   window.__showLogin=()=>showLogin("سجّل الدخول ببريدك، ثم اطلب صلاحية التعديل من أعلى اللوحة.");
-  function addHeaderBtn(id,text,fn){const slot=document.querySelector(".top > div:last-child");if(!slot||document.getElementById(id))return;const b=document.createElement("button");b.id=id;b.className="btn ghost";b.type="button";b.textContent=text;b.onclick=fn;slot.append(b)}
+  function addHeaderBtn(id,text,fn){const slot=document.querySelector(".top > div:last-of-type");if(!slot||document.getElementById(id))return;const b=document.createElement("button");b.id=id;b.className="btn ghost";b.type="button";b.textContent=text;b.onclick=fn;slot.append(b)}
   function startGuest(){
     role="guest";me={id:"anon",name:"زائر",email:null,avatarUrl:avatar("anon","ز"),color:colorOf("anon"),isOwner:false,canEdit:false,guest:true};
     document.getElementById("authgate").hidden=true;
@@ -714,7 +714,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     const nm=prof[u.id].name||(u.email||"").split("@")[0];
     me={id:u.id,name:nm,email:u.email,avatarUrl:avatar(u.id,nm),color:colorOf(u.id),isOwner:role==="owner",canEdit:role==="owner"||role==="manager"};
     document.getElementById("authgate").hidden=true;
-    const slot=document.querySelector(".top > div:last-child");
+    const slot=document.querySelector(".top > div:last-of-type");
     if(slot&&!document.getElementById("signout")){const b=document.createElement("button");b.id="signout";b.className="btn ghost";b.type="button";b.textContent="تسجيل الخروج";b.onclick=async()=>{await sb.auth.signOut();location.reload()};slot.append(b)}
     resolveReady();
   }
@@ -835,7 +835,7 @@ async function render(){const t=++rt;if(S.user){const want=ids();if(want.length)
 
 const isGuest=()=>S.me?.id==="anon";
 function paintHeader(){
-  {const slot=document.querySelector(".top > div:last-child");let rb=document.getElementById("reqedit");
+  {const slot=document.querySelector(".top > div:last-of-type");let rb=document.getElementById("reqedit");
    const show=S.me&&!S.isOwner&&role()==="viewer";
    if(!show){rb&&rb.remove()}else{if(!rb){rb=h("button",{id:"reqedit",class:"btn primary",type:"button"});slot&&slot.prepend(rb)}
      const mine=S.requests.find(r=>r.id===S.me.id);
@@ -845,7 +845,7 @@ function paintHeader(){
   $("#pname").textContent=S.meta?.name||"مشروع مطار الملك سلمان الدولي";
   $("#pdesc").textContent=S.meta?.desc||"المالية والمنجزات، بطاقات المهام، سجل التحديثات، وصلاحيات الفريق في مكان واحد.";
   $("#editProject").hidden=!canManage();
-  const me=$("#me");if(S.me){me.hidden=false;me.title="تعديل اسمي";me.setAttribute("role","button");me.tabIndex=0;me.onclick=openMyName;me.onkeydown=e=>{if(e.key==="Enter")openMyName()};me.replaceChildren(h("span",{text:S.me.name||"أنت"}),h("span",{class:"rolepill",text:ROLES[role()].t}),h("img",{src:S.me.avatarUrl,alt:""}),isGuest()?null:h("span",{class:"editname","aria-hidden":"true",text:"✎"}))}
+  const me=$("#me");if(S.me){me.hidden=false;me.title="تعديل اسمي";me.setAttribute("role","button");me.tabIndex=0;me.onclick=openMyName;me.onkeydown=e=>{if(e.key==="Enter")openMyName()};me.replaceChildren(h("span",{text:S.me.name||"أنت"}),h("span",{class:"rolepill",text:ROLES[role()].t}),h("img",{src:S.me.avatarUrl,alt:""}),...(isGuest()?[]:[h("span",{class:"editname","aria-hidden":"true",text:"✎"})]))}
 }
 function openEditRequest(){
   const why=h("textarea",{id:"f-req-why",placeholder:"مثال: أحتاج تحديث المهام وإضافة المخرجات المنفذة"});
