@@ -740,6 +740,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     const nm=prof[u.id].name||(u.email||"").split("@")[0];
     me={id:u.id,name:nm,email:u.email,avatarUrl:avatar(u.id,nm),color:colorOf(u.id),isOwner:role==="owner",canEdit:role==="owner"||role==="manager"};
     document.getElementById("authgate").hidden=true;
+    try{const pl=JSON.parse(atob(session.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));const ms=(pl.amr||[]).map(a=>a.method||a);
+      window.__needPw=!(u.user_metadata&&u.user_metadata.pw_set)&&!ms.includes("password")}catch(e){window.__needPw=false}
+    window.__setPw=async pw=>{const {error}=await sb.auth.updateUser({password:pw,data:{pw_set:true}});if(error)throw error;window.__needPw=false};
     const slot=document.querySelector(".top > div:last-of-type");
     if(slot&&!document.getElementById("signout")){const b=document.createElement("button");b.id="signout";b.className="btn ghost";b.type="button";b.textContent="تسجيل الخروج";b.onclick=async()=>{await sb.auth.signOut();location.reload()};slot.append(b)}
     resolveReady();
@@ -887,6 +890,12 @@ async function decideRequest(r,approve){
     const ok=await run(async()=>{await S.db.doc("members/"+r.id).set({...rest,role,email:r.email||rest.email||"",addedAt:rest.addedAt||new Date().toISOString(),addedBy:S.me.id});await S.db.doc("requests/"+r.id).delete()},"تمت الموافقة وتفعيل الصلاحية","الصلاحيات",`وافق على طلب ${r.name||r.email} بصلاحية «${ROLES[role].t}»`);return ok}
   return run(()=>S.db.doc("requests/"+r.id).delete(),"رُفض الطلب","الصلاحيات",`رفض طلب التعديل من ${r.name||r.email}`);
 }
+function openSetPw(first){
+  const a=h("input",{id:"f-pw1",type:"password",dir:"ltr",minlength:"6",autocomplete:"new-password",placeholder:"6 أحرف على الأقل"}),b=h("input",{id:"f-pw2",type:"password",dir:"ltr",autocomplete:"new-password"});
+  const save=h("button",{class:"btn primary",type:"button",text:"حفظ كلمة المرور",onclick:async()=>{if(a.value.length<6){a.focus();toast("كلمة المرور 6 أحرف على الأقل");return}if(a.value!==b.value){b.focus();toast("كلمتا المرور غير متطابقتين");return}
+    save.disabled=true;try{await window.__setPw(a.value);toast("حُفظت كلمة المرور. من الآن ادخل بالبريد وكلمة المرور.");closeDrawer()}catch(e){toast("تعذّر الحفظ: "+(e.message||""))}save.disabled=false}});
+  openDrawer(first?"أهلًا بك، اختر كلمة مرور لحسابك":"تغيير كلمة المرور",[first?h("p",{class:"autonote",text:"دخلت من رابط الدعوة. اختر كلمة مرور لتدخل بها لاحقًا ببريدك دون انتظار رسالة."}):null,field("كلمة المرور الجديدة",a),field("تأكيد كلمة المرور",b)],[save,first?h("button",{class:"btn",type:"button",text:"لاحقًا",onclick:closeDrawer}):null].filter(Boolean));
+}
 function openMyName(){
   if(isGuest()){window.__showLogin&&window.__showLogin();return}
   const inp=h("input",{id:"f-myname",value:S.me?.name||"",placeholder:"مثال: Omar Alateeq",autocomplete:"name"});
@@ -894,7 +903,7 @@ function openMyName(){
     if(n===S.me.name){closeDrawer();return}save.disabled=true;const old=S.me.name;
     try{await window.__setMyName(n);logIt("الصلاحيات",`غيّر اسمه في اللوحة من «${old}» إلى «${n}»`);toast("حُفظ الاسم");closeDrawer();P={};render()}catch(e){toast(errText(e))}save.disabled=false}});
   inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();save.click()}});
-  openDrawer("اسمي في اللوحة",[field("الاسم الذي يظهر للفريق",inp),h("p",{class:"autonote",text:"يظهر هذا الاسم في أعلى اللوحة، وفي سجل التحديثات، وعلى المهام والتعليقات، وفي قائمة الأعضاء."})],[save]);
+  openDrawer("اسمي في اللوحة",[field("الاسم الذي يظهر للفريق",inp),h("p",{class:"autonote",text:"يظهر هذا الاسم في أعلى اللوحة، وفي سجل التحديثات، وعلى المهام والتعليقات، وفي قائمة الأعضاء."}),h("button",{class:"btn",type:"button",style:"align-self:flex-start",text:"تغيير كلمة المرور",onclick:()=>openSetPw(false)})],[save]);
 }
 const delTotal=d=>(d.items||[]).reduce((s,i)=>s+(+i.qty||0)*(+i.price||0),0);
 function paintSummary(){
@@ -1528,14 +1537,15 @@ async function claimCode(code,btn){
     logIt("الصلاحيات",`قبل دعوة ${inv.email||""} وانضم بصلاحية «${ROLES[inv.role]?.t||inv.role}»`);toast("تم! صلاحيتك الآن: "+(ROLES[inv.role]?.t||""))
   }catch(e){if(e?.code==="invalid_argument"){S.dataWrite=false;render();toast("حسابك يملك صلاحية الاطلاع فقط. اطلب من مدير اللوحة دعوتك بمستوى «محرر» من زر المشاركة");}else toast(errText(e))}btn.disabled=false;
 }
-function inviteText(email){return `تمت دعوتك إلى لوحة «مشروع مطار الملك سلمان الدولي».\n1) افتح الرابط: ${location.origin+location.pathname}\n2) اضغط «تسجيل الدخول»\n3) اكتب بريدك ${email} واختر كلمة مرور، ثم اضغط «إنشاء حساب».\nستتفعّل صلاحيتك تلقائيًا.`}
+function inviteText(email){const iv=S.invites.find(x=>(x.email||"").toLowerCase()===email.toLowerCase());const rt=iv?ROLES[iv.role]?.t:"";return `تمت دعوتك إلى لوحة «مشروع مطار الملك سلمان الدولي»${rt?` بصلاحية «${rt}»`:""}.\n1) افتح الرابط: ${location.origin+location.pathname}\n2) اضغط «تسجيل الدخول»\n3) اكتب بريدك ${email} واختر كلمة مرور، ثم اضغط «إنشاء حساب».\nستتفعّل صلاحيتك تلقائيًا.`}
 async function sendInviteMail(email,btn,invId){
   const sb=window.__sb;if(!sb)return;if(btn)btn.disabled=true;
-  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+  const inv0=invId?S.invites.find(x=>x.id===invId):S.invites.find(x=>(x.email||"").toLowerCase()===email.toLowerCase());const rk=inv0?.role||"viewer";
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true,data:{invited_role:ROLES[rk]?.t||"",invited_role_desc:ROLES[rk]?.d||"",invited_by:S.me?.name||"",project:"مشروع مطار الملك سلمان الدولي"}}});
   if(btn)btn.disabled=false;
   if(error){const msg=inviteText(email);try{await navigator.clipboard.writeText(msg)}catch(e){}
     toast(/rate|limit|seconds/i.test(error.message||"")?"تجاوزت حد إرسال البريد المؤقت، فنُسخت رسالة الدعوة. أرسلها له على الواتساب أو البريد وسيدخل بإنشاء حساب.":"تعذّر إرسال البريد، فنُسخت رسالة الدعوة. أرسلها له بنفسك.");return}
-  toast("أُرسلت الدعوة إلى "+email+". سيصله رابط الدخول على بريده.");
+  toast("أُرسلت الدعوة إلى "+email+" بصلاحية «"+(ROLES[rk]?.t||"")+"». يدخل من الرابط في بريده ثم يختار كلمة مرور.");
   const inv=invId?S.invites.find(x=>x.id===invId):S.invites.find(x=>(x.email||"").toLowerCase()===email.toLowerCase());
   if(inv)try{await S.db.doc("invites/"+inv.id).update({mailedAt:new Date().toISOString()})}catch(e){}
   logIt("الصلاحيات",`أرسل بريد الدعوة إلى ${email}`);
@@ -1717,7 +1727,7 @@ $("#editProject").addEventListener("click",()=>{
 });
 
 /* ---------- boot ---------- */
-setTimeout(()=>{try{animIn()}catch(e){}},600);const hash=(location.hash||"").slice(1);if(ALL_TABS.includes(hash)||hash==="home")S.tab=hash;
+setTimeout(()=>{try{animIn()}catch(e){}},600);setTimeout(()=>{try{if(window.__needPw&&S.me&&!isGuest())openSetPw(true)}catch(e){}},1800);const hash=(location.hash||"").slice(1);if(ALL_TABS.includes(hash)||hash==="home")S.tab=hash;
 {const lg=document.querySelector(".top .logo");if(lg){const go=()=>setTab("home");lg.addEventListener("click",go);lg.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});lg.setAttribute("aria-label","الرئيسية · مطار الملك سلمان الدولي")}}
 render();
 (async()=>{
