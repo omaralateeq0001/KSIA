@@ -496,7 +496,9 @@ section[role=tabpanel]::before{content:"";display:block;height:170px;border-radi
 /* ===== warm card system + motion ===== */
 :root{--r-card:18px;--lift:0 2px 4px rgba(90,60,30,.05),0 14px 34px -12px rgba(110,72,40,.22);--soft:0 1px 2px rgba(90,60,30,.05),0 6px 18px -8px rgba(110,72,40,.16);--ease:cubic-bezier(.2,.7,.2,1)}
 :root:not([data-theme="dark"]){--bg:#F6EFE4;--sunk:#F1E7D8;--line:#E6D9C4}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#26262A;--sunk:#2B2B2F;--line:#45454C}}
+:root{--c1:#C25E0A;--c2:#2A7FB8;--c3:#8E5520;--c-paid:#2F7A55;--c-unpaid:#D8CBB6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#26262A;--sunk:#2B2B2F;--line:#45454C;--c1:#D9761F;--c2:#4A97D2;--c3:#BE7F3E;--c-paid:#5DB98A;--c-unpaid:#4A4A52}}
+:root[data-theme="dark"]{--c1:#D9761F;--c2:#4A97D2;--c3:#BE7F3E;--c-paid:#5DB98A;--c-unpaid:#4A4A52}
 body{background:radial-gradient(1200px 500px at 85% -10%,color-mix(in srgb,var(--gold) 7%,transparent),transparent 60%),radial-gradient(900px 500px at 0% 30%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 60%),var(--bg);background-attachment:fixed}
 .top{border-radius:24px;border:0;box-shadow:var(--lift)}
 .top::after{height:4px;background:linear-gradient(90deg,var(--hl) 0 96px,transparent 96px)}
@@ -629,7 +631,23 @@ body.anim .hc:nth-child(1){animation-delay:0ms}body.anim .hc:nth-child(2){animat
 .ov-card:first-child,.ov-card:last-child:nth-child(even){grid-column:1/-1}
 .ov-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}.ov-h h3{margin:0;font-size:17px}.ov-h span{font-size:12.5px;color:var(--muted)}
 .ov-leg{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted)}.ov-leg span{display:inline-flex;align-items:center;gap:6px}.ov-leg i,.ov-dleg i,.ov-two i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
-.ov-scroll{overflow-x:auto;padding-bottom:4px}
+.ov-scroll{overflow-x:auto;padding-bottom:4px;direction:ltr}
+.ov-svg{display:block;font-family:var(--f-body)}
+.ov-svg .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}.ov-svg .base{stroke:var(--line);stroke-width:1.5}
+.ov-svg .ytick{font-size:11px;fill:var(--muted)}.ov-svg .xtick{font-size:12.5px;font-weight:600;fill:var(--ink)}.ov-svg .xsub{font-size:10.5px;fill:var(--muted)}
+.ov-svg .hit{fill:transparent;transition:fill .2s}.ov-svg .mgrp:hover .hit{fill:color-mix(in srgb,var(--ink) 5%,transparent)}.ov-svg .mgrp.now .hit{fill:color-mix(in srgb,var(--hl) 7%,transparent)}
+.ov-svg .mgrp{cursor:default}
+.ovtip{position:fixed;z-index:99;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:var(--lift);padding:10px 12px;font-size:12.5px;display:flex;flex-direction:column;gap:6px;min-width:200px;direction:rtl}
+.ovtip[hidden]{display:none}.ovtip b{font-size:13px}.ovtip .tr{display:flex;align-items:center;gap:8px}.ovtip .tr i{width:9px;height:9px;border-radius:3px;flex:none}.ovtip .tr strong{margin-inline-start:auto;font-weight:700}
+.ov-ring{flex:none}.ov-ring .seg{transition:opacity .2s}.ov-ring .seg:hover{opacity:.85}.ov-ring .rc{font-size:26px;font-weight:700;fill:var(--ink);font-family:var(--f-display)}.ov-ring .rl{font-size:12px;fill:var(--muted);font-family:var(--f-body)}
+.ov-dleg small{min-width:44px;text-align:end;color:var(--muted);font-size:12px}.ov-dleg .late span{color:var(--danger)}
+.ov-invw{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.ov-blks{flex:1;min-width:220px;max-width:360px;display:flex;flex-direction:column;gap:12px}
+.ov-blk{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ov-blk:last-child{border-bottom:0;padding-bottom:0}
+.ov-blk .l{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.ov-blk .l i{width:10px;height:10px;border-radius:3px}
+.ov-blk b{font-size:20px;padding-inline-start:18px;align-self:stretch;text-align:start;unicode-bidi:plaintext}
+.ov-blk small{font-size:12px;color:var(--muted);padding-inline-start:18px}
 .ov-cols{display:flex;gap:10px;align-items:stretch;min-height:240px;min-width:min-content}
 .ov-col{flex:1 0 64px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:12px;padding:6px 4px}
 .ov-col.now{background:color-mix(in srgb,var(--hl) 8%,transparent)}
@@ -637,23 +655,23 @@ body.anim .hc:nth-child(1){animation-delay:0ms}body.anim .hc:nth-child(2){animat
 .ov-bar{width:16px;border-radius:6px 6px 0 0;position:relative;min-height:2px;transition:height .8s var(--ease)}
 .ov-bar em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) rotate(-90deg);transform-origin:center;white-space:nowrap;font-style:normal;font-size:10px;color:var(--muted);margin-bottom:22px}
 .ov-ml{font-size:12px;font-weight:600}.ov-my{font-size:10.5px;color:var(--muted)}
-.ov-bl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
-.ov-bl-h{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;font-size:13.5px}.ov-bl-h span{color:var(--muted);font-size:12.5px}
+.ov-bl{display:flex;flex-direction:column;gap:6px}
+.ov-bl-h{display:flex;align-items:baseline;gap:10px;font-size:14px}.ov-cap{font-size:12px;color:var(--muted)}
 .ov-track{position:relative;height:12px;border-radius:999px;background:var(--sunk);overflow:visible}
 .ov-track span{display:block;height:100%;border-radius:999px;transition:width .8s var(--ease)}
 .ov-track i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55;border-radius:2px}
-.ov-pct{font-weight:700;font-size:14px;min-width:52px;text-align:end}
+.ov-pct{font-weight:700;font-size:14px;color:var(--ink)}
 .ov-note{margin:0;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}.ov-mk{width:2px;height:12px;background:var(--ink);opacity:.55;display:inline-block}
 .ov-donutw{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .ov-donut{width:170px;height:170px;border-radius:50%;display:grid;place-items:center;flex:none}
 .ov-donut>div{width:112px;height:112px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .ov-donut b{font-size:24px}.ov-donut small{font-size:12px;color:var(--muted)}
-.ov-dleg{display:flex;flex-direction:column;gap:8px;flex:1;min-width:160px}.ov-dleg div{display:flex;align-items:center;gap:8px;font-size:13.5px}.ov-dleg b{margin-inline-start:auto}
+.ov-dleg{display:flex;flex-direction:column;gap:10px;flex:1;min-width:180px;max-width:300px}.ov-dleg div{display:grid;grid-template-columns:10px 1fr 34px 48px;align-items:center;gap:8px;font-size:13.5px}.ov-dleg b{text-align:end}
 .ov-hb{display:flex;flex-direction:column;gap:10px}
-.ov-hbr{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:13px}
+.ov-hbr{display:grid;grid-template-columns:minmax(90px,38%) 1fr 60px;gap:10px;align-items:center;font-size:13px}
 .ov-hbn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ov-hbt{height:12px;border-radius:999px;background:var(--sunk);display:flex;overflow:hidden}
-.ov-hbt span{height:100%;transition:width .8s var(--ease)}.ov-hbt .fin{background:var(--s-done)}.ov-hbt .opn{background:var(--s-doing)}.ov-hbt .one{background:var(--hl);border-radius:999px}
+.ov-hbt span{height:100%;transition:width .8s var(--ease)}.ov-hbt .fin{background:var(--s-done)}.ov-hbt .opn{background:var(--s-doing)}.ov-hbt .one{background:var(--c1);border-radius:999px}
 .ov-stack{height:18px;border-radius:999px;background:var(--sunk);display:flex;overflow:hidden}.ov-stack .p{background:var(--s-done)}.ov-stack .u{background:var(--line)}
 .ov-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ov-two div{display:flex;align-items:center;gap:8px;font-size:13px}.ov-two b{margin-inline-start:auto}
 body.anim #v-overview:not([hidden]) .ov-kpi,body.anim #v-overview:not([hidden]) .ov-card{animation:rise .55s var(--ease) both}
@@ -1001,6 +1019,44 @@ function paintHome(){const v=$("#v-home");if(!v||S.tab!=="home")return;const ok=
       h("span",{class:"hc-body"},h("span",{class:"hc-top"},h("span",{class:"hc-t",text:t}),n!==""?h("span",{class:"hc-n num",text:n}):null),h("span",{class:"hc-d",text:d}),h("span",{class:"hc-go",text:"افتح القسم ←"})))});
   v.replaceChildren(h("div",{class:"homehead"},h("h2",{text:"أقسام اللوحة"}),h("p",{text:"اختر قسمًا لعرض تفاصيله كاملة. للرجوع إلى هنا اضغط شعار المطار أعلى الصفحة."})),h("div",{class:"homegrid"},...cards))}
 /* ---------- overview ---------- */
+const SVGNS="http://www.w3.org/2000/svg";
+const sv=(t,a={},...k)=>{const e=document.createElementNS(SVGNS,t);for(const[x,y]of Object.entries(a))if(y!=null)e.setAttribute(x,y);k.flat().forEach(c=>c!=null&&e.append(c));return e};
+function ovTip(){let t=document.getElementById("ovtip");if(!t){t=h("div",{id:"ovtip",class:"ovtip",role:"tooltip"});document.body.append(t)}return t}
+function tipShow(e,html){const t=ovTip();t.replaceChildren(...html);t.hidden=false;const r=t.getBoundingClientRect();let x=e.clientX-r.width/2,y=e.clientY-r.height-14;x=Math.max(8,Math.min(innerWidth-r.width-8,x));if(y<8)y=e.clientY+18;t.style.left=x+"px";t.style.top=y+"px"}
+function tipHide(){const t=document.getElementById("ovtip");if(t)t.hidden=true}
+function niceMax(v){if(v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p;return(n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+const shortN=n=>{n=+n||0;const a=Math.abs(n);return a>=1e6?(Math.round(n/1e5)/10).toLocaleString("en-US")+" م":a>=1e3?Math.round(n/1e3).toLocaleString("en-US")+" ألف":Math.round(n).toLocaleString("en-US")};
+function colChart(ms,series,cm){
+  const W=Math.max(900,ms.length*110),H=320,pl=58,pr=14,pt=16,pb=44,iw=W-pl-pr,ih=H-pt-pb;
+  const max=niceMax(Math.max(0,...ms.flatMap(m=>series.map(s=>s[1][m]||0)))),ticks=4;
+  const g=sv("svg",{viewBox:`0 0 ${W} ${H}`,class:"ov-svg",role:"img","aria-label":"التنفيذ الشهري",style:`width:100%;min-width:${Math.max(520,ms.length*96)}px;height:auto`});
+  for(let i=0;i<=ticks;i++){const v=max*i/ticks,y=pt+ih-ih*i/ticks;
+    g.append(sv("line",{x1:pl,x2:W-pr,y1:y,y2:y,class:i?"grid":"base"}),sv("text",{x:pl-10,y:y+4,class:"ytick","text-anchor":"end",direction:"ltr"},i?shortN(v):"0"))}
+  const gw=iw/ms.length,bw=Math.min(22,(gw-26)/series.length),gap=2;
+  ms.forEach((m,mi)=>{const gx=pl+iw-(mi+1)*gw,cx=gx+gw/2,tot=series.length*bw+(series.length-1)*gap;
+    const grp=sv("g",{class:"mgrp"+(m===cm?" now":"")});
+    grp.append(sv("rect",{x:gx+3,y:pt,width:gw-6,height:ih,rx:8,class:"hit"}));
+    series.forEach(([n,d,c],si)=>{const v=d[m]||0,bh=v?Math.max(3,ih*v/max):0,x=cx+tot/2-(si+1)*bw-si*gap,y=pt+ih-bh;
+      if(bh)grp.append(sv("path",{d:`M${x},${pt+ih}V${y+4}Q${x},${y} ${x+4},${y}H${x+bw-4}Q${x+bw},${y} ${x+bw},${y+4}V${pt+ih}Z`,fill:c}))});
+    grp.append(sv("text",{x:cx,y:H-pb+20,class:"xtick","text-anchor":"middle"},monthLabel(m).replace(/\s*\d{4}/,"")),sv("text",{x:cx,y:H-pb+35,class:"xsub","text-anchor":"middle"},m.slice(0,4)+(m===cm?" · الحالي":"")));
+    const rows=()=>[h("b",{text:monthLabel(m)}),...series.map(([n,d,c])=>h("div",{class:"tr"},h("i",{style:`background:${c}`}),h("span",{text:n}),h("strong",{class:"num",text:money(d[m]||0)})))];
+    grp.addEventListener("mousemove",e=>tipShow(e,rows()));grp.addEventListener("mouseleave",tipHide);
+    grp.addEventListener("click",e=>tipShow(e,rows()));
+    g.append(grp)});
+  const wrap=h("div",{class:"ov-scroll"},g);setTimeout(()=>{wrap.scrollLeft=wrap.scrollWidth},0);
+  return wrap}
+function ring(parts,center,label){
+  const tot=parts.reduce((a,p)=>a+(+p.v||0),0),R=70,r=50,C=2*Math.PI;let a0=-Math.PI/2;
+  const g=sv("svg",{viewBox:"0 0 180 180",width:180,height:180,class:"ov-ring",role:"img","aria-label":label});
+  g.append(sv("circle",{cx:90,cy:90,r:(R+r)/2,fill:"none",stroke:"var(--sunk)","stroke-width":R-r}));
+  const nz=parts.filter(p=>+p.v>0),gapA=nz.length>1?0.03:0;
+  nz.forEach(p=>{const ang=(+p.v/tot)*C,a1=a0+ang,s0=a0+gapA/2,s1=a1-gapA/2;
+    if(s1>s0){const big=s1-s0>Math.PI?1:0,pt=(rad,a)=>`${90+rad*Math.cos(a)},${90+rad*Math.sin(a)}`;
+      const path=nz.length===1?`M${pt(R,-Math.PI/2)}A${R},${R} 0 1 1 ${pt(R,-Math.PI/2-0.0001)}L${pt(r,-Math.PI/2-0.0001)}A${r},${r} 0 1 0 ${pt(r,-Math.PI/2)}Z`:`M${pt(R,s0)}A${R},${R} 0 ${big} 1 ${pt(R,s1)}L${pt(r,s1)}A${r},${r} 0 ${big} 0 ${pt(r,s0)}Z`;
+      const el=sv("path",{d:path,fill:p.c,class:"seg"});el.addEventListener("mousemove",e=>tipShow(e,[h("div",{class:"tr"},h("i",{style:`background:${p.c}`}),h("span",{text:p.n}),h("strong",{class:"num",text:(p.money?money(p.v):"")||(tot?fmtPct(p.v/tot*100):"")}))]));el.addEventListener("mouseleave",tipHide);g.append(el)}
+    a0=a1});
+  g.append(sv("text",{x:90,y:92,class:"rc","text-anchor":"middle",direction:"ltr"},center),sv("text",{x:90,y:114,class:"rl","text-anchor":"middle"},label));
+  return g}
 function paintOverview(){
   const v=$("#v-overview");if(!v||S.tab!=="overview")return;
   const sd=seesDone(),cm=curMonth(),mi=MONTHS.indexOf(cm),elapsed=mi<0?(cm<MONTHS[0]?0:MONTHS.length):mi+1;
@@ -1023,10 +1079,10 @@ function paintOverview(){
     kpi("الفواتير",money(invG),`المدفوع ${money(invP)}`),
     kpi("إنجاز المهام",T.length?fmtPct(fin/T.length*100):"—",`${nf.format(fin)} من ${nf.format(T.length)}${late?` · ${nf.format(late)} متأخرة`:""}`));
   // budget consumption
-  const bline=(name,d,t,c)=>h("div",{class:"ov-bl"},h("div",{class:"ov-bl-h"},h("b",{text:name}),h("span",{class:"num",text:`${money(d)} من ${money(t)}`})),
-    h("div",{class:"ov-track"},h("span",{style:`width:${t?Math.min(d/t*100,100):0}%;background:${c}`}),h("i",{style:`inset-inline-start:${elapsed/MONTHS.length*100}%`,title:"المدة المنقضية من العقد"})),h("span",{class:"ov-pct num",text:fmtPct(t?d/t*100:0)}));
+  const bline=(name,d,t,c)=>h("div",{class:"ov-bl"},h("div",{class:"ov-bl-h"},h("b",{text:name}),h("span",{class:"ov-pct num",text:fmtPct(t?d/t*100:0)})),
+    h("div",{class:"ov-track"},h("span",{style:`width:${t?Math.min(d/t*100,100):0}%;background:${c}`}),h("i",{style:`inset-inline-start:${elapsed/MONTHS.length*100}%`,title:"المدة المنقضية من العقد"})),h("span",{class:"ov-cap num",text:`المنجز ${money(d)} من ${money(t)}`}));
   const budget=sd?card("استهلاك الميزانية","المنجز مقابل قيمة كل جزء من العقد",
-    bline("بنود التوظيف",st.done,st.total,"var(--accent)"),bline("قائمة الأسعار",rt.done,rt.total,"var(--hl)"),bline("الإجمالي",doneAmt,st.total+rt.total,"var(--s-done)"),
+    bline("بنود التوظيف",st.done,st.total,"var(--c3)"),bline("قائمة الأسعار",rt.done,rt.total,"var(--c1)"),bline("الإجمالي",doneAmt,st.total+rt.total,"var(--c2)"),
     h("p",{class:"ov-note"},h("i",{class:"ov-mk"}),"الخط الرأسي يمثّل نسبة المدة المنقضية من العقد، للمقارنة بنسبة الصرف.")):null;
   // monthly execution (up to current month)
   const ms=MONTHS.slice(0,Math.max(1,Math.min(elapsed,MONTHS.length)));
@@ -1034,20 +1090,14 @@ function paintOverview(){
   if(sd)S.done.forEach(x=>{const m=x.month||(x.at?localDay(x.at).slice(0,7):"");if(m)mDone[m]=(mDone[m]||0)+instAmt(x)});
   dlv.forEach(d=>{const m=(d.date||(d.createdAt?localDay(d.createdAt):"")).slice(0,7);if(m)mDlv[m]=(mDlv[m]||0)+(+d.value||0)});
   S.outputs.forEach(o=>{const m=(o.date||(o.createdAt?localDay(o.createdAt):"")).slice(0,7);if(m)mInv[m]=(mInv[m]||0)+outGross(o)});
-  const series=[...(sd?[["البنود المنجزة",mDone,"var(--accent)"]]:[]),["المخرجات المنفذة",mDlv,"var(--hl)"],["الفواتير شامل الضريبة ونسبة نصّ",mInv,"var(--s-done)"]];
-  const mx=Math.max(1,...ms.flatMap(m=>series.map(s=>s[1][m]||0)));
-  const cols=h("div",{class:"ov-cols"},ms.map(m=>h("div",{class:"ov-col"+(m===cm?" now":"")},
-    h("div",{class:"ov-bars"},series.map(([n,d,c])=>{const val=d[m]||0;return h("span",{class:"ov-bar",style:`height:${val/mx*100}%;background:${c}`,title:`${n} · ${monthLabel(m)}: ${money(val)}`},val?h("em",{class:"num",text:short(val)}):null)})),
-    h("span",{class:"ov-ml",text:monthLabel(m).replace(/\s*\d{4}/,"")}),h("span",{class:"ov-my num",text:m.slice(0,4)}))));
-  const legend=h("div",{class:"ov-leg"},series.map(([n,,c])=>h("span",{},h("i",{style:`background:${c}`}),n)));
-  const monthly=card("التنفيذ الشهري",`من ${monthLabel(MONTHS[0])} حتى ${monthLabel(ms[ms.length-1])}`,legend,h("div",{class:"ov-scroll"},cols));
+  const series=[...(sd?[["البنود المنجزة",mDone,"var(--c1)"]]:[]),["المخرجات المنفذة",mDlv,"var(--c2)"],["الفواتير شامل الضريبة ونسبة نصّ",mInv,"var(--c3)"]];
+  const monthly=card("التنفيذ الشهري",`من ${monthLabel(MONTHS[0])} حتى ${monthLabel(ms[ms.length-1])} · بالريال`,h("div",{class:"ov-leg"},series.map(([n,,c])=>h("span",{},h("i",{style:`background:${c}`}),n))),colChart(ms,series,cm));
   // tasks donut
-  const ord=["done","review","doing","todo"];let acc=0;
-  const segs=ord.map(k=>{const c=cnt(k),a=T.length?c/T.length*100:0,seg=`${TASK_STATUS[k].c} ${acc}% ${acc+a}%`;acc+=a;return seg}).join(",");
+  const ord=["done","review","doing","todo"];
   const donut=card("حالة المهام",`${nf.format(T.length)} مهمة`,h("div",{class:"ov-donutw"},
-    h("div",{class:"ov-donut",style:`background:${T.length?`conic-gradient(${segs})`:"var(--sunk)"}`},h("div",{},h("b",{class:"num",text:T.length?fmtPct(fin/T.length*100):"—"}),h("small",{text:"إنجاز"}))),
-    h("div",{class:"ov-dleg"},ord.map(k=>h("div",{},h("i",{style:`background:${TASK_STATUS[k].c}`}),h("span",{text:TASK_STATUS[k].t}),h("b",{class:"num",text:nf.format(cnt(k))}))),
-      late?h("div",{},h("i",{style:"background:var(--danger)"}),h("span",{text:"متأخرة"}),h("b",{class:"num",text:nf.format(late)})):null)));
+    ring(ord.map(k=>({v:cnt(k),c:TASK_STATUS[k].c,n:TASK_STATUS[k].t})),T.length?fmtPct(fin/T.length*100):"—","نسبة الإنجاز"),
+    h("div",{class:"ov-dleg"},ord.map(k=>h("div",{},h("i",{style:`background:${TASK_STATUS[k].c}`}),h("span",{text:TASK_STATUS[k].t}),h("b",{class:"num",text:nf.format(cnt(k))}),h("small",{class:"num",text:T.length?fmtPct(cnt(k)/T.length*100):""}))),
+      late?h("div",{class:"late"},h("i",{style:"background:var(--danger)"}),h("span",{text:"منها متأخرة"}),h("b",{class:"num",text:nf.format(late)}),h("small")):null)));
   // tasks by owner
   const by={};T.forEach(t=>{const k=t.owner||"none";by[k]=by[k]||{all:0,open:0};by[k].all++;if(!isFin(t))by[k].open++});
   const owners=Object.entries(by).sort((a,b)=>b[1].all-a[1].all);const omx=Math.max(1,...owners.map(o=>o[1].all));
@@ -1057,10 +1107,11 @@ function paintOverview(){
     h("b",{class:"num",text:`${nf.format(o.all)}`})))):h("p",{class:"ov-note",text:"لا توجد مهام بعد."}),
     owners.length?h("div",{class:"ov-leg"},h("span",{},h("i",{style:"background:var(--s-done)"}),"منجزة"),h("span",{},h("i",{style:"background:var(--s-doing)"}),"مفتوحة")):null);
   // invoices paid
-  const inv=card("الفواتير والدفع",`${nf.format(S.outputs.length)} فاتورة`,
-    h("div",{class:"ov-stack"},h("span",{class:"p",style:`width:${invG?invP/invG*100:0}%`}),h("span",{class:"u",style:`width:${invG?(invG-invP)/invG*100:0}%`})),
-    h("div",{class:"ov-two"},h("div",{},h("i",{style:"background:var(--s-done)"}),h("span",{text:"مدفوع"}),h("b",{class:"num",text:money(invP)})),h("div",{},h("i",{style:"background:var(--line)"}),h("span",{text:"لم يُدفع"}),h("b",{class:"num",text:money(invG-invP)}))),
-    h("p",{class:"ov-note num",text:`نسبة المدفوع ${fmtPct(invG?invP/invG*100:0)} من إجمالي الفواتير شامل الضريبة ونسبة نصّ.`}));
+  const invN=S.outputs.length,pN=S.outputs.filter(o=>payPct(o)>=100).length,hN=S.outputs.filter(o=>payPct(o)>0&&payPct(o)<100).length;
+  const blk=(c,l,amt,sub)=>h("div",{class:"ov-blk"},h("span",{class:"l"},h("i",{style:`background:${c}`}),l),h("b",{class:"num",text:money(amt)}),h("small",{class:"num",text:sub}));
+  const inv=card("الفواتير والدفع",`${nf.format(invN)} فاتورة · شامل الضريبة ونسبة نصّ`,h("div",{class:"ov-invw"},
+    ring([{v:invP,c:"var(--c-paid)",n:"مدفوع"},{v:Math.max(0,invG-invP),c:"var(--c-unpaid)",n:"لم يُدفع"}],invG?fmtPct(invP/invG*100):"—","مدفوع"),
+    h("div",{class:"ov-blks"},blk("var(--c-paid)","مدفوع",invP,`${nf.format(pN)} كاملة${hN?` · ${nf.format(hN)} بنسبة 50%`:""}`),blk("var(--c-unpaid)","لم يُدفع",invG-invP,`${nf.format(invN-pN)} فاتورة عليها مبالغ`),blk("var(--ink)","إجمالي الفواتير",invG,`${nf.format(invN)} فاتورة`))));
   // top items used in outputs
   const iu={};dlv.forEach(d=>dlvLines(d).forEach(l=>{if(!l.itemName)return;const k=l.itemName;iu[k]=iu[k]||{v:0,q:0};iu[k].v+=(+l.value||0);iu[k].q+=(+l.qty||0)}));
   const top=Object.entries(iu).sort((a,b)=>b[1].v-a[1].v).slice(0,8),tmx=Math.max(1,...top.map(x=>x[1].v));
