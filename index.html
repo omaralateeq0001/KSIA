@@ -387,6 +387,7 @@ tr.cancelled td{opacity:.55}
 tr.cancelled .iname{text-decoration:line-through}
 .lnk{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:13px}
 .lnk svg{width:14px;height:14px}
+.rno{width:44px;color:var(--muted);font-weight:600}
 .dpick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line)}.dpick .dpsel{flex:1;min-width:220px;max-width:520px}
 .autonote{margin:0;font-size:12.5px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:8px 10px}
 .autonotes{background:var(--accent-soft);border-radius:8px;padding:6px 10px;margin-bottom:6px;font-size:12.5px}
@@ -1209,8 +1210,8 @@ function paintDone(){
     if(g==="ratecard"){kids.push(ratecardMonths(list,G,ed));return}
     const gt=list.reduce((s,c)=>s+c.total,0),isStaffG=g==="staff"&&list.some(c=>c.staff),gAmt=list.reduce((s,c)=>s+(by[c.key]||[]).reduce((t,x)=>t+instAmt(x),0),0),gCnt=list.reduce((n,c)=>n+(by[c.key]||[]).length,0);
     const usedL=list.filter(c=>(by[c.key]||[]).length);const pick=ed?donePicker(list,new Set(usedL.map(c=>c.key)),undefined):null;
-    const rows=usedL.map(c=>{const xs=by[c.key]||[];const amt=xs.reduce((t,x)=>t+instAmt(x),0);
-      return h("tr",{class:xs.length?"used":""},
+    const rows=usedL.map((c,ri)=>{const xs=by[c.key]||[];const amt=xs.reduce((t,x)=>t+instAmt(x),0);
+      return h("tr",{class:xs.length?"used":""},h("td",{class:"n rno num",text:ri+1}),
         h("td",{title:c.desc||""},c.name,!c.staff&&c.unitLabel?h("small",{class:"subn",text:"الوحدة: "+c.unitLabel}):null,c.staff?h("small",{class:"subn",text:`المخطط ${nf.format(c.res)} ${c.res>1?"موظفين":"موظف"} · الإجمالي لثلاث سنوات ${money(c.total)}`}):null),
         h("td",{class:"n",text:money(c.unit)}),h("td",{class:"n",text:money(inc(c.unit))}),
         h("td",{class:"stepcell"},h("div",{class:"stepper"},
@@ -1221,7 +1222,7 @@ function paintDone(){
         h("td",{class:"notecell"},noteInput(c)))});
     kids.push(h("div",{class:"donetbl",style:"margin-bottom:16px"},
       h("div",{class:"grouph"},h("h3",{text:G.t}),h("span",{class:"num",text:`المنجز ${money(gAmt)} (شامل الضريبة ${money(inc(gAmt))}) من ${money(gt)} · ${nf.format(gCnt)} ${isStaffG?"موظف":"مرة"}`}),pctBar(gt?gAmt/gt*100:0)),
-      usedL.length?h("div",{class:"tablewrap"},h("table",{},h("thead",{},h("tr",{},h("th",{text:isStaffG?"الدور":"البند"}),h("th",{class:"n",text:isStaffG?"التكلفة السنوية للموظف الواحد غير شامل الضريبة":"قيمة البند غير شامل الضريبة"}),h("th",{class:"n",text:"شامل الضريبة"}),h("th",{class:"stepcell",text:isStaffG?"عدد الموظفين":"عدد مرات الإنجاز"}),h("th",{class:"n",text:"المنجز غير شامل الضريبة"}),h("th",{class:"n",text:"المنجز شامل الضريبة"}),h("th",{class:"notecell",text:"ملاحظات"}))),h("tbody",{},rows))):h("div",{class:"del-note",text:"لا توجد بنود مفوترة بعد."+(ed?" اختر بندًا لإضافته.":"")}),pick))});
+      usedL.length?h("div",{class:"tablewrap"},h("table",{},h("thead",{},h("tr",{},h("th",{class:"n rno",text:"#"}),h("th",{text:isStaffG?"الدور":"البند"}),h("th",{class:"n",text:isStaffG?"التكلفة السنوية للموظف الواحد غير شامل الضريبة":"قيمة البند غير شامل الضريبة"}),h("th",{class:"n",text:"شامل الضريبة"}),h("th",{class:"stepcell",text:isStaffG?"عدد الموظفين":"عدد مرات الإنجاز"}),h("th",{class:"n",text:"المنجز غير شامل الضريبة"}),h("th",{class:"n",text:"المنجز شامل الضريبة"}),h("th",{class:"notecell",text:"ملاحظات"}))),h("tbody",{},rows))):h("div",{class:"del-note",text:"لا توجد بنود مفوترة بعد."+(ed?" اختر بندًا لإضافته.":"")}),pick))});
   v.replaceChildren(...kids);
 }
 const MONTHS=(()=>{const out=[];let y=2026,m=10;while(y<2029||(y===2029&&m<=10)){out.push(`${y}-${String(m).padStart(2,"0")}`);m++;if(m>12){m=1;y++}}return out})();
@@ -1245,8 +1246,8 @@ function ratecardMonths(list,G,ed){
     if(open){
       const byK={};xs.forEach(x=>{(byK[x.itemKey]=byK[x.itemKey]||[]).push(x)});
       const usedL=list.filter(c=>(byK[c.key]||[]).length);const pick=ed?donePicker(list,new Set(usedL.map(c=>c.key)),m):null;
-      const rows=usedL.map(c=>{const ys=byK[c.key]||[];const a=ys.reduce((t,x)=>t+instAmt(x),0);
-        return h("tr",{class:ys.length?"used":""},
+      const rows=usedL.map((c,ri)=>{const ys=byK[c.key]||[];const a=ys.reduce((t,x)=>t+instAmt(x),0);
+        return h("tr",{class:ys.length?"used":""},h("td",{class:"n rno num",text:ri+1}),
           h("td",{title:c.desc||""},c.name,c.unitLabel?h("small",{class:"subn",text:"الوحدة: "+c.unitLabel}):null),
           h("td",{class:"n",text:money(c.unit)}),h("td",{class:"n",text:money(inc(c.unit))}),
           h("td",{class:"stepcell"},h("div",{class:"stepper"},
@@ -1255,7 +1256,7 @@ function ratecardMonths(list,G,ed){
             ed?h("button",{type:"button",class:"stepbtn plus","aria-label":"زيادة العدد",onclick:e=>addDone(c,e.currentTarget,m)},"+"):null)),
           h("td",{class:"n",text:ys.length?money(a):"—"}),h("td",{class:"n",text:ys.length?money(inc(a)):"—"}),
           h("td",{class:"notecell"},(()=>{const g={};ys.filter(x=>x.delivName).forEach(x=>{g[x.delivName]=(g[x.delivName]||0)+1});const ks=Object.keys(g);return ks.length?h("div",{class:"autonotes"},h("span",{class:"al",text:"المخرجات المنفذة:"}),h("ul",{},ks.map(k=>h("li",{},k,g[k]>1?h("span",{class:"aq num",text:" × "+nf.format(g[k])}):null)))):null})(),noteInput(c,m)))});
-      body=h("div",{class:"tablewrap"},h("table",{},h("thead",{},h("tr",{},h("th",{text:"البند"}),h("th",{class:"n",text:"قيمة البند غير شامل الضريبة"}),h("th",{class:"n",text:"شامل الضريبة"}),h("th",{class:"stepcell",text:"عدد مرات الإنجاز"}),h("th",{class:"n",text:"المنجز غير شامل الضريبة"}),h("th",{class:"n",text:"المنجز شامل الضريبة"}),h("th",{class:"notecell",text:"ملاحظات"}))),h("tbody",{},rows)));
+      body=h("div",{class:"tablewrap"},h("table",{},h("thead",{},h("tr",{},h("th",{class:"n rno",text:"#"}),h("th",{text:"البند"}),h("th",{class:"n",text:"قيمة البند غير شامل الضريبة"}),h("th",{class:"n",text:"شامل الضريبة"}),h("th",{class:"stepcell",text:"عدد مرات الإنجاز"}),h("th",{class:"n",text:"المنجز غير شامل الضريبة"}),h("th",{class:"n",text:"المنجز شامل الضريبة"}),h("th",{class:"notecell",text:"ملاحظات"}))),h("tbody",{},rows)));
       body=h("div",{},usedL.length?body:h("div",{class:"del-note",text:"لا توجد بنود مفوترة في هذا الشهر."+(ed?" اختر بندًا لإضافته.":"")}),pick);
     }
     return h("div",{class:"month"+(open?" open":"")+(xs.length?" has":"")},headEl,body)});
